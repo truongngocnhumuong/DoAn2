@@ -6,6 +6,47 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
+def contact(request):
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
+        user_not_login = 'hidden'
+        user_login = 'show'
+    else:
+        items = []
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
+        user_not_login = 'show'
+        user_login = 'hidden'
+    categories = Category.objects.filter(is_sub=False)
+    if request.method == 'POST':
+        fullname = request.POST.get('fullname')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone', '')
+        message = request.POST.get('message')
+        
+        # Lưu vào database
+        Contact.objects.create(
+            fullname=fullname,
+            email=email,
+            phone=phone,
+            message=message
+        )
+        
+        messages.success(request, 'Thank you for contacting us! We will get back to you soon.')
+        return redirect('contact')
+    context = {
+        'items': items,
+        'order': order,
+        'cartItems': cartItems,
+        'user_not_login': user_not_login,
+        'user_login': user_login,
+        'categories': categories,
+    }
+    return render(request, 'app/contact.html', context)
+
 def detail(request):
     if request.user.is_authenticated:
         customer = request.user

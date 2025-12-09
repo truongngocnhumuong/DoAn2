@@ -2,6 +2,20 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
+class Contact(models.Model):
+    fullname = models.CharField(max_length=200)
+    email = models.EmailField(max_length=200)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    message = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.fullname} - {self.email}"
+    
+    class Meta:
+        ordering = ['-date_created']
+
 class Category(models.Model):
     sub_category = models.ForeignKey('self', on_delete=models.CASCADE, related_name='sub_categories', null=True, blank=True)
     is_sub = models.BooleanField(default=False)
