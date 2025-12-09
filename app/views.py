@@ -6,6 +6,35 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
+def detail(request):
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
+        user_not_login = 'hidden'
+        user_login = 'show'
+    else:
+        items = []
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
+        user_not_login = 'show'
+        user_login = 'hidden'
+    id = request.GET.get('id', '')
+    products = Product.objects.filter(id=id)
+    categories = Category.objects.filter(is_sub=False)
+    context = {
+        'items': items,
+        'order': order,
+        'cartItems': cartItems,
+        'user_not_login': user_not_login,
+        'user_login': user_login,
+        'categories': categories,
+        'products': products,
+    }
+    return render(request, 'app/detail.html', context)
+
+
 def category(request):
     categories = Category.objects.filter(is_sub=False)
     active_category = request.GET.get('category', '')
@@ -105,7 +134,7 @@ def cart(request):
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        items = order.orderitem_set.all()
+        items = order.orderitem_set.exclude(product__isnull=True)
         cartItems = order.get_cart_items
         user_not_login = 'hidden'
         user_login = 'show'
