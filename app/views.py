@@ -1,3 +1,4 @@
+import datetime
 import json
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
@@ -220,6 +221,56 @@ def checkout(request):
         'categories': categories,
     }
     return render(request, 'app/checkout.html', context)
+
+def process_order(request):
+    if request.method == 'POST':
+        # Lấy thông tin từ form
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        address = request.POST.get('address')
+        phone = request.POST.get('phone')
+        city = request.POST.get('city', '')
+        state = request.POST.get('state', '')
+        
+        # Xử lý đơn hàng cho user đã đăng nhập
+        if request.user.is_authenticated:
+            customer = request.user
+            order, created = Order.objects.get_or_create(customer=customer, complete=False)
+            
+            # Tạo transaction ID
+            transaction_id = datetime.datetime.now().timestamp()
+            order.transaction_id = transaction_id
+            
+            # Đánh dấu đơn hàng đã hoàn thành
+            order.complete = True
+            order.save()
+            
+            # Lưu thông tin vận chuyển
+            ShippingAddress.objects.create(
+                customer=customer,
+                order=order,
+                address=address,
+                city=city,
+                state=state,
+                mobile=phone
+            )
+            
+            # Chuyển đến trang thành công
+            context = {
+                'order': order,
+                'cartItems': 0,  # Giỏ hàng đã về 0
+                'user_not_login': 'hidden',
+                'user_login': 'show',
+                'categories': Category.objects.filter(is_sub=False),
+            }
+            return render(request, 'app/order_success.html', context)
+        else:
+            # Xử lý cho guest user (chưa đăng nhập)
+            messages.warning(request, 'Vui lòng đăng nhập để hoàn tất đơn hàng!')
+            return redirect('login')
+    
+    return redirect('checkout')
+
 
 def updateItem(request):
     data = json.loads(request.body)

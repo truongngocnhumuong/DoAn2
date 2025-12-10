@@ -1,0 +1,41 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block register %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm text-center p-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
+                </div>
+                <h1 class="mb-3">Đặt hàng thành công!</h1>
+                <p class="lead text-muted mb-4">
+                    Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.
+                </p>
+                
+                <div class="alert alert-info mb-4">
+                    <h5>Thông tin đơn hàng</h5>
+                    <p class="mb-1"><strong>Mã đơn hàng:</strong> {{ order.transaction_id }}</p>
+                    <p class="mb-1"><strong>Tổng tiền:</strong> {{ order.get_cart_total }} VND</p>
+                    <p class="mb-0"><strong>Số lượng sản phẩm:</strong> {{ order.get_cart_items }}</p>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i>
+                    Chúng tôi đã gửi email xác nhận đơn hàng đến địa chỉ của bạn.
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-home"></i> Về trang chủ
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock register %}
