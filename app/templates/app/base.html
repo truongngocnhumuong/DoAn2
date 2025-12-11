@@ -105,6 +105,13 @@ const csrftoken = getCookie('csrftoken');
             <li class="nav-item">
               <a class="nav-link" href="{% url 'contact' %}">Liên hệ</a>
             </li>
+            {% if request.user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'statistics' %}">
+                <i class="fas fa-chart-line"></i> Thống kê
+              </a>
+          </li>
+          {% endif %}
           </ul>
           <form class="d-flex" role="search" method= POST action="{% url 'search' %}">
             {% csrf_token %}
