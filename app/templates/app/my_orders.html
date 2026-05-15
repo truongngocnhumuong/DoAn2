@@ -1,0 +1,87 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block main-content %}
+<div class="container mt-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">
+      <i class="fas fa-shopping-bag me-2 text-primary"></i>Đơn Hàng Của Tôi
+    </h2>
+    <a href="{% url 'home' %}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-1"></i> Tiếp tục mua sắm
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if orders %}
+    <div class="row g-4">
+      {% for order in orders %}
+      <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-3">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <div>
+              <span class="text-muted small">Đơn hàng #</span>
+              <strong>{{ order.id }}</strong>
+              <span class="ms-3 text-muted small">
+                <i class="fas fa-calendar-alt me-1"></i>{{ order.date_order|date:"d/m/Y H:i" }}
+              </span>
+            </div>
+            <span class="badge bg-{{ order.status_display_class }} fs-6 px-3 py-2">
+              {{ order.get_status_display }}
+            </span>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                {% for item in order.orderitem_set.all %}
+                  {% if item.product %}
+                  <div class="d-flex align-items-center mb-2">
+                    <img src="{{ item.product.ImageURL }}" width="50" height="50"
+                         class="rounded me-3" style="object-fit: cover;"
+                         onerror="this.src='{% static 'app/images/placeholder.png' %}'">
+                    <div>
+                      <p class="mb-0 fw-semibold">{{ item.product.name }}</p>
+                      <p class="mb-0 text-muted small">
+                        {{ item.quantity }} × {{ item.product.price|floatformat:0 }} VND
+                      </p>
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <div class="col-md-4 text-end d-flex flex-column justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1">Tổng tiền</p>
+                  <h5 class="text-danger fw-bold">{{ order.get_cart_total|floatformat:0 }} VND</h5>
+                  <p class="text-muted small">{{ order.get_cart_items }} sản phẩm</p>
+                </div>
+                {% if order.transaction_id %}
+                <div>
+                  <p class="text-muted small mb-0">Mã giao dịch:</p>
+                  <code class="small text-break">{{ order.transaction_id|slice:":16" }}...</code>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted">Bạn chưa có đơn hàng nào</h4>
+      <a href="{% url 'home' %}" class="btn btn-primary mt-3">Bắt đầu mua sắm</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock main-content %}

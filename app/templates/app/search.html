@@ -1,38 +1,84 @@
-{% extends "app/base.html" %} {% load static %}
+{% extends "app/base.html" %}
+{% load static %}
+{% block register %}
+<div class="container-fluid mt-4">
+  <h4 class="fw-bold mb-3 ms-2">
+    Kết quả tìm kiếm cho: <span class="text-primary">"{{ searched }}"</span>
+  </h4>
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title></title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="" />
-  </head>
-  <body>
-    {% block register %}
-    <h5>Result search for {{ searched }}</h5>
-    <br />
-    <div class="row" style="width: 100%">
-      {% for product in keys %}
-      <div class="col-lg-3">
-        <img class="thumbnail" src="{{ product.ImageURL }}" />
-        <div class="box-element product">
-          <h6><strong>{{ product.name }}</strong></h6>
-          <hr />
-          <button
-            data-product="{{ product.id }}"
-            data-action="add"
-            class="btn btn-outline-secondary add-btn update-cart"
-          >
-            Add to cart
-          </button>
-          <a class="btn btn-outline-success" href="#">View</a>
-          <h3>{{ product.price }} VND</h3>
+  {% if keys %}
+  <div class="row g-3 mx-1">
+    {% for product in keys %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0 rounded-3 position-relative">
+        {% if not product.in_stock %}
+          <span class="badge bg-danger position-absolute top-0 end-0 m-2">Hết hàng</span>
+        {% endif %}
+        <img class="card-img-top" src="{{ product.ImageURL }}"
+             style="height:200px;object-fit:cover;"
+             onerror="this.src='{% static 'app/images/placeholder.png' %}'">
+        <div class="card-body d-flex flex-column">
+          <h6 class="card-title fw-semibold">{{ product.name }}</h6>
+          <p class="text-danger fw-bold">{{ product.price|floatformat:0 }} VND</p>
+          <div class="mt-auto d-flex gap-2">
+            {% if product.in_stock %}
+              <button data-product="{{ product.id }}" data-action="add"
+                      class="btn btn-primary btn-sm flex-grow-1 add-btn update-cart">
+                Thêm vào giỏ
+              </button>
+            {% else %}
+              <button class="btn btn-secondary btn-sm flex-grow-1" disabled>Hết hàng</button>
+            {% endif %}
+            <a class="btn btn-outline-success btn-sm" href="{% url 'detail' %}?id={{ product.id }}">
+              <i class="fas fa-eye"></i>
+            </a>
+          </div>
         </div>
       </div>
-      {% endfor %}
     </div>
-    {% endblock register %}
-  </body>
-</html>
+    {% endfor %}
+  </div>
+
+  <!-- CT4: Phân trang kết quả tìm kiếm -->
+  {% if keys.has_other_pages %}
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if keys.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ keys.previous_page_number }}">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+        </li>
+      {% endif %}
+      {% for num in keys.paginator.page_range %}
+        {% if keys.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > keys.number|add:'-3' and num < keys.number|add:'3' %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% if keys.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ keys.next_page_number }}">
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+    <p class="text-center text-muted small">
+      Tìm thấy {{ keys.paginator.count }} sản phẩm
+    </p>
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+    <p class="text-muted">Không tìm thấy sản phẩm nào cho "{{ searched }}"</p>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-2">Về trang chủ</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock register %}

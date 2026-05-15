@@ -16,4 +16,9 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('process_order/', views.process_order, name='process_order'),
     path('statistics/', views.statistics, name='statistics'),
+    # CT2: Lịch sử đơn hàng
+    path('my-orders/', views.my_orders, name='my_orders'),
+    path('order-status/<int:pk>/', views.update_order_status, name='update_order_status'),
+    # CT3: Trang cá nhân
+    path('profile/', views.profile, name='profile'),
 ]

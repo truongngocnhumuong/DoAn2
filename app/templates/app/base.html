@@ -128,11 +128,20 @@ const csrftoken = getCookie('csrftoken');
           </form>
         </div>
     
-          <div class='form-inline my-2 my-lg-0' style = "visibility: {{user_login}}">
-            <span>Xin chào, {{request.user}}</span>
-            <span><a href="{% url 'logout' %}">Logout</a></span>
+          <div class='form-inline my-2 my-lg-0' style="visibility: {{user_login}}">
+            <div class="dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle me-1"></i>{{ request.user }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Trang cá nhân</a></li>
+                <li><a class="dropdown-item" href="{% url 'my_orders' %}"><i class="fas fa-shopping-bag me-2"></i>Đơn hàng của tôi</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+              </ul>
+            </div>
           </div>
-          <div class='form-inline my-2 my-lg-0' style = "visibility: {{user_not_login}}">
+          <div class='form-inline my-2 my-lg-0' style="visibility: {{user_not_login}}">
               <a class="nav-link" href="{% url 'login' %}">Đăng nhập</a>
               <a class="nav-link" href="{% url 'register' %}">Đăng ký</a>
           </div>
